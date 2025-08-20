@@ -1,0 +1,66 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Log files
+*.log
+pip-log.txt
+*.txt
+
+# IDE/editor files
+.idea
+.vscode
+*.spyproject
+*.ropeproject
+
+# Test and coverage files
+.coverage
+htmlcov/
+.tox/
+.nox/
+nosetests.xml
+coverage.xml
+*.cover
+.pytest_cache/
+
+# Build artifacts
+dist/
+build/
+
+# Configuration files
+*.ini
+local_settings.py
+db.sqlite3
+
+# Jupyter Notebook
+.ipynb_checkpoints/
+
+# Translations
+*.mo
+*.pot
+
+# pyenv
+.python-version
+
+# Celery
+celerybeat-schedule
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json

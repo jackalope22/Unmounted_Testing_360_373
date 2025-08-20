@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/style.css">
+    <script src="/static/jquery-3.6.1.min.js"></script>
+    
+    <title>DMatix 2 Testing</title>
+</head>
+<body>
+    <script type="text/javascript">
+        function loading(){
+            $("#running").show();
+            $("#content").hide();
+        }
+    </script>
+    <ul class="nav">
+        <li><a href="/">Test</a></li>
+    </ul>
+
+
+    {% include "dmr2_buttons.html" %}
+
+    {% if data %}
+    <h2 id="data">{{ data }}</h2>
+    {% else %}
+    <h2 id="nodata">Testing Status OK</h2>
+    {% endif %}
+
+    <form class="sensorform" action="{{ url_for('submitForm') }}" method="POST">
+        <div class="header">
+            <br>
+            {% if headerdata %}
+            <label class="techname" for="user">Technician Name</label>
+            <input class="techinput" type="text", name="user" value="{{ headerdata[0] }}">
+            <label class="batch" for="wonumber">Work Order Number</label>
+            <input class="batchinput "type="text" name="wonumber" value="{{ headerdata[1] }}">
+            {% else %}
+            <label class="techname" for="user">Technician Name</label>
+            <input class="techinput" type="text", name="user" value="username">
+            <label class="batch" for="wonumber">Work Order Number</label>
+            <input class="batchinput" type="text" name="wonumber" value="WO #">
+            {% endif %}
+        </div>
+        <div class="test">
+            <fieldset>
+                <legend>Scan Type</legend>
+                <input type="checkbox" name="360" value="True">Testing Kev360
+                <input type="hidden" name="360" value="False">
+                <br>
+                <input type="checkbox" name="373" value="True">Testing Kev373
+                <input type="hidden", name="373" value="False">
+                <br>
+                <!--<input type="checkbox" name="pulser" value="True">Pulser Test
+                <input type="hidden", name="pulser" value="False">-->
+            </fieldset>
+        </div>
+        <div class="container">
+            <div class="itemone">
+                <div class="serial">
+                    <label class="seriallabel" for="serialone">Serial #</label>
+                    <input class="serialone" type="text" name="topleft">
+                    <input class="serialtwo" type="text" name="topright">
+                    <input class="serialthree" type="text" name="bottomleft">
+                    <input class="serialfour" type="text" name="bottomright">
+                </div>
+            </div>  
+        </div>
+
+        <input class="operations" type="submit" name="process", value="Run" onclick="loading();">
+    </form>
+    <div id="running">
+        <h3>Test running, this may take awhile</h3>
+    </div>
+    <div id="content">
+        {% if scanResults %}
+        <h2>Results</h2>
+        <p>
+            <h3>{{ scanResults[0] }}</h3>
+            <h3>{{ scanResults[1] }}</h3>
+            <h3>{{ scanResults[2] }}</h3>
+            <h3>{{ scanResults[3] }}</h3>
+            <h3>{{ scanResults[4] }}</h3>
+        </p>
+        {% endif %}
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,376 @@
+dm.sys_get_enablePixelMapping()
+dm.sys_get_hvSetType()
+dm.sys_get_hvUpdateStep()
+dm.sys_get_hvUpdateStepIntervals()
+dm.sys_get_powerAllAM()
+dm.sys_get_hvDACOffset()
+dm.sys_get_fanCtl(fan number)
+dm.sys_get_installAM(am number)
+dm.am_get_active()
+dm.am_get_updateType()
+dm.gm_get_updateType()
+dm.gm_get_readoutMode()
+dm.gm_get_powerAsic()
+dm.gm_get_pulserFrequency()
+dm.gm_get_enableAnodePulser()
+dm.gm_get_cathodeMode()
+dm.gm_get_enableNegData()
+dm.gm_get_enableThermalData()
+dm.gm_get_pulseCount()
+dm.asic_get_channelThreshold(ChannelThresholdType_AnodePositiveEnergy)
+dm.asic_get_channelThreshold(ChannelThresholdType_AnodeNegativeEnergy)
+dm.asic_get_peakingTime(dm.channelType_Anode)
+dm.asic_get_peakingTime(dm.ChannelType_Cathode)
+dm.asic_get_cathodeTimingChannelsShaperPeakingTime()
+dm.asic_get_channelThreshold(dm.ChannelThresholdType_CathodeEnergy)
+dm.asic_get_channelGain()
+dm.asic_get_readoutMode()
+dm.asic_get_timeDetectRampLength(dm.ChannelType_Anode)
+dm.asic_get_peakDetectTimeout(dm.ChannelType_Anode)
+dm.asic_get_anodeInternalLeakageCurrentGenerator()
+dm.asic_get_multipleFiringSuppressTime()
+dm.asic_get_timingChannelUnipolarGain()
+dm.asic_get_timingChannelBiPolarGain()
+dm.asic_get_testPulse(dm.ChannelType_Anode)
+dm.asic_get_anodeTestPulseEdge()
+dm.asic_get_globalOptions()
+dm.channel_get_activeType()
+dm.channel_get_updateType()
+
+bychannel
+ dm.channel_get_mask(dm.channelType_Anode, channelnumber)
+ dm.channel_get_cpd(channelnumber)
+ dm.channel_get_anodeSignalMonitored(channelnumber)
+ dm.channel_set_enableTestCapacitor(dm.channelType_Anode, channelnumber)
+ dm.channel_get_positivePulseThresholdTrim(channeltype, channelnumber)
+ dm.channel_get_anodeNegativePulseThresholdTrim(channelnumber)
+ 
+ 
+ settings functions
+ def setSystemSettings(Powerflag):
+    if not dm.sys_set_powerAllAm(True):
+        log.debug("AM's not Powered on")
+        log.debug(f"last error {dm.api_get_lastErr()}")
+        return False
+    if dm.sys_set_installedAM(0, True):
+        print("all AM's installed")
+        log.info("all AM's install and powered")
+    if Powerflag != "True":
+        print("Waiting 10 seconds for AM's to power up")
+        log.info("Waiting 10 seconds for AM's to power up")
+        sleep(12)
+        
+    devicetype = dm.sys_set_deviceType(dm.DMatrixDevice_2x2)
+    if not devicetype:
+        log.debug("Device type not set")
+        log.debug(f"last error {dm.api_get_lastErr()}")
+        return False
+    log.info(f"device type: {devicetype}")
+    if not dm.sys_set_enablePixelMapping(False):
+        log.debug("Pixel Mapping not set")
+        log.debug(f"last error {dm.api_get_lastErr()}")
+        return False
+    if not dm.sys_set_hvSetType(dm.SetType_Stepped):
+        log.debug("Hv type not set")
+        log.debug(f"last error {dm.api_get_lastErr()}")
+        return False
+    if not dm.sys_set_hvUpdateStep(20):#changed strp from 10 to 20 for faster ramping
+        log.debug("Hv update step not set")
+        log.debug(f"last error {dm.api_get_lastErr()}")
+        return False
+    if not dm.sys_set_hvUpdateStepInterval(5):
+        log.debug("Hv Step interval not set")
+        log.debug(f"last error {dm.api_get_lastErr()}")
+        return False
+    if not dm.sys_set_hvDACSlope(4.802):
+        log.debug("HV Dac Slope not set")
+        log.debug(f"last error {dm.api_get_lastErr()}")
+        return False
+    if not dm.sys_set_hvDACOffset(0):
+        log.debug("HV Dac offset not set")
+        return False
+    dm.sys_set_fanCtl(dm.DMATRIX_FAN1, 255)
+    dm.sys_set_fanCtl(dm.DMATRIX_FAN2, 125)
+    print("System setting complete ...")
+    log.info("System setting complete ...")
+    
+def setAmSettings():
+    if not dm.am_set_active(0):
+        log.debug("AM Not set active")
+        log.debug(f"last error {dm.api_get_lastErr()}")
+        return False
+    if not dm.am_set_updateType(dm.AMUpdateType_SingleAM):
+        log.debug("AM Update type not set")
+        log.debug(f"last error {dm.api_get_lastErr()}")
+        return False
+    sleep(1)
+    print("AM setting complete ...")
+    log.info("AM setting complete ...")
+
+def setGmSettings(pulsefreq, enablePulse, pulseCount):
+    if not dm.gm_set_updateType(dm.GMUpdateType_Broadcast):
+        log.debug("GM Update type not set")
+        log.debug(f"last error {dm.api_get_lastErr()}")
+        return False
+    if not dm.gm_set_readoutMode(dm.GMReadout_Sparsified):
+        log.debug("GM Readout mode not set")
+        log.debug(f"last error {dm.api_get_lastErr()}")
+        return False
+    if not dm.gm_set_cathodeMode(dm.CathodeTimingMode_Undefined):
+        log.debug("GM Cathode mode not set")
+        log.debug(f"last error {dm.api_get_lastErr()}")
+        return False
+    if not dm.gm_set_powerAsic(True):
+        log.debug("GM Set power asic not set")
+        log.debug(f"last error {dm.api_get_lastErr()}")
+        return False
+    if not dm.gm_set_delayTime(0):
+        log.debug("GM Delay time not set")
+        log.debug(f"last error {dm.api_get_lastErr()}")
+        return False
+    if not dm.gm_set_timestampRes(0):
+        log.debug("GM Timestamp resolution not set")
+        log.debug(f"last error {dm.api_get_lastErr()}")
+        return False
+    if not dm.gm_set_pulserFrequency(pulsefreq):
+        log.debug("GM Pulser frequency not set")
+        log.debug(f"last error {dm.api_get_lastErr()}")
+        return False
+    if not dm.gm_set_enableAnodePulser(enablePulse):
+        log.debug("GM Enable Anode Pulser not set")
+        log.debug(f"last error {dm.api_get_lastErr()}")
+        return False
+    if not dm.gm_set_enableNegData(False):
+        log.debug("GM Enable Negative Data not set")
+        log.debug(f"last error {dm.api_get_lastErr()}")
+        return False
+    if not dm.gm_set_enableThermalData(False):
+        log.debug("GM Enable Thermal Data not set")
+        log.debug(f"last error {dm.api_get_lastErr()}")
+        return False
+    if not dm.gm_set_pulseCount(pulseCount):
+        log.debug("GM Pulse Count not set")
+        log.debug(f"last error {dm.api_get_lastErr()}")
+        return False
+    if not dm.gm_set_disablePackets(False):
+        log.debug("GM Disable Packets not set")
+        log.debug(f"last error {dm.api_get_lastErr()}")
+        return False
+    sleep(2)
+    print("GM setting complete ...")
+    log.info("GM setting complete ...")
+
+def setASICSettings(testPulse, peakingtime_ms):
+    if not dm.asic_set_peakDetectTimeout(dm.ChannelType_Anode, timeoutInMicroSeconds=1):
+        log.debug("Anode Peak Detect Timeout not set")
+        log.debug(f"last error {dm.api_get_lastErr()}")
+        return False
+    sleep(.1)
+    if not dm.asic_set_timeDetectRampLength(dm.ChannelType_Anode, rampLengthInMicroSeconds=1):
+        log.debug("Anode Time Detect Ramp Length not set")
+        log.debug(f"last error {dm.api_get_lastErr()}")
+        return False
+    sleep(.1)
+    if not dm.asic_set_analogOutputMonitored(dm.AnalogOutput_NoFunction):
+        log.debug("Analog Output not set")
+        log.debug(f"last error {dm.api_get_lastErr()}")
+        return False
+    sleep(.1)
+    if not dm.asic_set_anodeChannelMonitored(0):
+        log.debug("Anode Channel Monitored not set")
+        log.debug(f"last error {dm.api_get_lastErr()}")
+        return False
+    sleep(.1)
+    if not dm.asic_set_timingChannelUnipolarGain(dm.TimingChannelUnipolarGain_27mV):
+        log.debug("Timing Channel Unipolar Gain not set")
+        log.debug(f"last error {dm.api_get_lastErr()}")
+        return False
+    sleep(.1)
+    if not dm.asic_set_timingChannelBiPolarGain(dm.TimingChannelBipolarGain_21mV):
+        log.debug("Timing Channel Bipolar Gain not set")
+        log.debug(f"last error {dm.api_get_lastErr()}")
+        return False
+    sleep(.1)
+    if not dm.asic_set_readoutMode(dm.GMASICReadout_Sparsified):
+        log.debug("GM Asic Readout mode not set")
+        log.debug(f"last error {dm.api_get_lastErr()}")
+        return False
+    sleep(.1)
+    if not dm.asic_set_peakingTime(dm.ChannelType_Anode, peakingtime_ms):
+        log.debug("Anode Peaking time not set")
+        log.debug(f"last error {dm.api_get_lastErr()}")
+        return False
+    sleep(.1)
+    if not dm.asic_set_peakDetectTimeout(dm.ChannelType_Anode, timeoutInMicroSeconds=1):
+        log.debug("Anode Peak Detect Timeout not set")
+        log.debug(f"last error {dm.api_get_lastErr()}")
+        return False
+    sleep(.1)
+    if not dm.asic_set_peakDetectTimeout(dm.ChannelType_Cathode, timeoutInMicroSeconds=1):
+        log.debug("Cathode Peak Detect Timeout not set")
+        log.debug(f"last error {dm.api_get_lastErr()}")
+        return False
+    sleep(.1)
+    if not dm.asic_set_timeDetectRampLength(dm.ChannelType_Cathode, rampLengthInMicroSeconds=1):
+        log.debug("Cathode Time Detect Ramp Length not set")
+        log.debug(f"last error {dm.api_get_lastErr()}")
+        return False
+    if not dm.asic_set_cathodeTimingChannelsShaperPeakingTime(dm.TimingChannelsShaperPeakingTime_400nS):
+        log.debug("Cathode Timing Channels Shaper Peaking Time not set")
+        log.debug(f"last error {dm.api_get_lastErr()}")
+        return False
+    sleep(.1)
+    #cathode internal leakage current generator maybe 2 channels
+    if not dm.asic_set_cathodeChannelInternalLeakageCurrentGenerator(0, dm.CathodeInternalLeakageCurrentGenerator_350pA):
+        log.debug("Cathode Channel Internal Leakage Current Generator not set")
+        log.debug(f"last error {dm.api_get_lastErr()}")
+        return False
+    if not dm.asic_set_cathodeChannelInternalLeakageCurrentGenerator(1, dm.CathodeInternalLeakageCurrentGenerator_350pA):
+        log.debug("Cathode Channel Internal Leakage Current Generator not set")
+        log.debug(f"last error {dm.api_get_lastErr()}")
+        return False
+    sleep(.1)
+    #cathode timeing channel secondary multi-threshold maybe
+    if not dm.asic_set_cathodeTimingChannelsSecondaryMultiThresholdsDisplacement(-100):
+        log.debug("Cathode Timing Channels Secondary Multi Thresholds Displacement not set")
+        log.debug(f"last error {dm.api_get_lastErr()}")
+        return False
+    sleep(.1)
+    if not dm.asic_set_multipleFiringSuppressTime(dm.MultipleFiringSuppressionTime_62_5nS):
+        log.debug("Multiple Firing Suppress Time not set")
+        log.debug(f"last error {dm.api_get_lastErr()}")
+        return False
+    sleep(.1)
+    if not dm.asic_set_anodeInternalLeakageCurrentGenerator(dm.InternalLeakageCurrentGenerator_0A):
+        log.debug("Anode Internal Leakage Current Generator not set")
+        log.debug(f"last error {dm.api_get_lastErr()}")
+        return False
+    sleep(.1)
+    if not dm.asic_set_testPulse(dm.ChannelType_Anode, testPulse):
+        log.debug("Anode Test Pulse not set")
+        log.debug(f"last error {dm.api_get_lastErr()}")
+        return False
+    sleep(.1)
+    if not dm.asic_set_channelThreshold(dm.ChannelThresholdType_CathodeTimingPrimaryMultiThresholdBiPolar, 0):
+        log.debug("Cathode Timing Primary Multi Threshold BiPolar not set")
+        log.debug(f"last error {dm.api_get_lastErr()}")
+        return False
+    sleep(.1)
+    if not dm.asic_set_channelThreshold(dm.ChannelThresholdType_CathodeTimingUnipolar, 0):
+        log.debug("Cathode Timing Unipolar not set")
+        log.debug(f"last error {dm.api_get_lastErr()}")
+        return False
+    sleep(.1)
+    if not dm.asic_set_channelThreshold(dm.ChannelThresholdType_CathodeEnergy, 1892.55):
+        log.debug("Cathode Energy not set")
+        log.debug(f"last error {dm.api_get_lastErr()}")
+        return False
+    sleep(.1)
+    if not dm.asic_set_channelThreshold(dm.ChannelThresholdType_AnodeNegativeEnergy, 0):
+        log.debug("Channel Threshold Negative not set")
+        log.debug(f"last error {dm.api_get_lastErr()}")
+        return False
+    sleep(.1)
+    if not dm.asic_set_channelThreshold(dm.ChannelThresholdType_AnodePositiveEnergy, 397.75):
+        log.debug("Channel Threshold Positive not set!")
+        log.debug(f"last error {dm.api_get_lastErr()}")
+        return False
+    sleep(.1)
+    if not dm.asic_set_anodeTestPulseEdge(dm.AnodeTestPulseEdge_InjectNegativeCharge):
+        log.debug("Anode Test Pulse Edge not set")
+        log.debug(f"last error {dm.api_get_lastErr()}")
+        return False
+    sleep(.1)
+    if not dm.asic_set_channelGain(dm.A_ChannelGain_120mV, dm.C_ChannelGain_60mV):
+        log.debug("Channel Gain not set")
+        log.debug(f"last error {dm.api_get_lastErr()}")
+        return False
+    sleep(.1)
+    if not dm.asic_set_cathodeTestSigSrc(dm.CathodeTestSigSrc_SDI):
+        log.debug("Cathode Test Signal Source not set")
+        log.debug(f"last error {dm.api_get_lastErr()}")
+        return False
+    sleep(.1)
+    if not dm.asic_set_cathodeTestSigType(dm.TestSigType_Step):
+        log.debug("Cathode Test Signal Type not set")
+        log.debug(f"last error {dm.api_get_lastErr()}")
+        return False
+    sleep(.1)
+    if not dm.asic_set_DACMonitored(dm.DACS_NONE):
+        log.debug("DAC Monitored not set")
+        log.debug(f"last error {dm.api_get_lastErr()}")
+        return False
+    sleep(.1)
+    if not dm.asic_set_cathodeEnergyTimingMonitored(dm.CathodeEnergyTiming_NONE):
+        log.debug("Cathode Energy Timing not set")
+        log.debug(f"last error {dm.api_get_lastErr()}")
+        return False
+    sleep(.1)
+    if not dm.asic_set_globalOptions(dm.ASICGlobal_None):
+        log.debug("Global Options not set")
+        log.debug(f"last error {dm.api_get_lastErr()}")
+        return False
+    sleep(.1)
+    if not  dm.asic_send_globalData():
+        log.debug("Asic Global data not sent")
+        log.debug(f"last error {dm.api_get_lastErr()}")
+    sleep(.2)
+    if not dm.asic_send_globalData():
+        print("Asic Global data not sent")
+        log.debug("Asic Global data not sent")
+        log.debug(f"last error {dm.api_get_lastErr()}")
+    dm.asic_send_globalData()
+    sleep(.2)
+    print("ASIC setting complete ...")
+    log.info("ASIC setting complete ...")
+
+def setChannelSettings(testCap):
+    if not dm.channel_set_activeType(dm.ChannelType_Anode):
+        log.debug("Channel Active Type not set")
+        log.debug(dm.api_get_lastErr())
+    if not dm.channel_set_updateType(dm.ChannelUpdateType_Broadcast):
+        log.debug("Channel Update Type not set")
+        log.debug(dm.api_get_lastErr())
+    if not dm.channel_set_anodeSignalMonitored(dm.Signal_Positive):
+        log.debug("Anode Signal Monitored not set")
+        log.debug(dm.api_get_lastErr())    
+    if not dm.channel_set_mask(False):
+        log.debug("Channel Mask not set")
+        log.debug(dm.api_get_lastErr())
+    if not dm.channel_set_enableTestCapacitor(testCap):
+        log.debug("Enable Test Capacitor not set")
+        log.debug(dm.api_get_lastErr())
+    if not dm.channel_set_positivePulseThresholdTrim(0):
+        log.debug("Positive Pulse Threshold Trim not set")
+        log.debug(dm.api_get_lastErr())
+    if not dm.channel_set_anodeNegativePulseThresholdTrim(-62):
+        log.debug("Anode Negative Pulse Threshold Trim not set")
+        log.debug(dm.api_get_lastErr())
+    if not dm.channel_set_cpd(False):
+        log.debug("Channel Power Down not set")
+        log.debug(dm.api_get_lastErr())
+    if not dm.asic_send_channelData():
+        print("channel data not sent to device")
+        log.info("channel data not sent to device")
+    sleep(.2)
+    if not dm.asic_send_channelData():
+        print("channel data not sent to device")
+        log.info("channel data not sent to device")
+    sleep(.2)
+    if not dm.asic_send_globalData():
+        print("Global data not sent to device")
+        log.info("Global data not sent to device")
+    sleep(.2)
+    if not dm.asic_send_channelData():
+        print("channel data not sent to device")
+        log.info("channel data not sent to device")
+    sleep(.2)
+    if not dm.asic_send_globalData():
+        print("Global data not sent to device")
+        log.info("Global data not sent to device")
+    sleep(.2)
+    if not dm.asic_send_globalData():
+        print("Global data not sent to device")
+        log.info("Global data not sent to device")
+    print(f"Channel setting complete ...")
+    log.info(f"Channel setting complete ...")

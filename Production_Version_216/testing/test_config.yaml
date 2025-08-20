@@ -1,0 +1,15 @@
+# Test Configuration File
+# This file contains configuration values for the DMatrix testing system
+
+# Test type specific settings
+test_settings:
+  pulser:
+    collect_time: 22
+    hv: 0
+  "360":
+    collect_time: 22
+    hv: 137
+  "373":
+    collect_time: 22
+    hv: 200
+

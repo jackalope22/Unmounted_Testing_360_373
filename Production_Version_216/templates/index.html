@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/style.css">
+    <script src="/static/jquery-3.6.1.min.js"></script>
+    
+    <title>Unmounted Testing</title>
+</head>
+<body>
+    <script type="text/javascript">
+        $(document).on('submit','#sensorform', function(e){
+            console.log('Run button clicked');
+            e.preventDefault();
+            updatescreen()
+            var callapi = setInterval(getMessages, 1000)
+            $.ajax({
+                url: '{{ url_for("submitForm") }}',
+                type: 'POST',
+                data: {user:$("#user").val(), wonumber:$("#wonumber").val(), scantype:$("#scantype:checked").val(), 
+                       testype:$("#testype:checked").val(), topleft:$("#topleft").val(), topright:$("#topright").val(),
+                       bottomleft:$("#bottomleft").val(), bottomright:$("#bottomright").val(), process:$("#process").val()},
+                success:function(){
+                    $("#running").hide();
+                    $(".itemone").show()
+                    $("#process").show()
+                    $(".cleartest").show()
+                    clearInterval(callapi)
+                },
+                error:function(results){
+                    console.log(results.responseText)
+                    $("#running").hide();
+                    $(".itemone").show()
+                    $("#process").show()
+                    $(".cleartest").show()
+                    clearInterval(callapi)
+                    alert("The Test has returnd an error\n" + results.responseText)
+                }
+            })
+        });
+        function updatescreen(){
+            $("#status0").empty()
+            $("#status1").empty()
+            $("#status2").empty()
+            $("#status3").empty()
+            $("#status4").empty()
+            $("#status5").empty()
+            $("#status6").empty()
+            $("#status7").empty()
+            $("#status8").empty()
+            $("#status9").empty()
+            $("#status10").empty()
+            $("#status11").empty()
+            $("#status12").empty()
+            $("#status13").empty()
+            $("#status14").empty()
+            $("#status15").empty()
+            $("#status16").empty()
+            $("#status17").empty()
+            $("#status18").empty()
+            $("#status19").empty()
+            $("#status20").empty()
+            $("#running").show()
+            $(".itemone").hide()
+            $("#process").hide()
+            $(".cleartest").hide()
+        }
+        function getMessages(){
+            fetch("http://172.27.3.217:8000/api/v1/redis/message/216")
+                .then(response => {
+                    return response.json()
+                })
+                .then(data => {
+                    console.log(data)
+                    $("#results").show()
+                    for (let i = 0; i < data.length; i++){
+                        $("#status"+i).text(data[i])
+                    }
+                    
+                })
+        }
+    </script>
+    <ul class="nav">
+        <li><a href="/">Test</a></li>
+    </ul>
+
+
+    {% include "dmr2_buttons.html" %}
+    <h2 style="margin-left: 30px;">Kev 360 and 373 Unmounted Testing</h2>
+
+    <!--<form class="sensorform" action="{{ url_for('submitForm') }}" method="POST">-->
+    <form id="sensorform">
+        <div class="header">
+            <br>
+            <label class="techname" for="user">Technician Name</label>
+            <input class="techinput" id="user" type="text", value="username">
+            <label class="batch" for="wonumber">Work Order Number</label>
+            <input class="batchinput" id=wonumber type="text" value="WO#">
+        </div>
+        <div class="test">
+            <fieldset>
+                <legend>Scan Type</legend>
+                <input type="radio" id="scantype" name="scantype" value="360">
+                <label for="360">Testing kev360</label>
+                <br>
+                <input type="radio" id="scantype" name="scantype" value="373">
+                <label for="373">Testing kev373</label>
+                <br>
+                <input type="radio" id="scantype" name="scantype" value="pulser">
+                <label for="pulser">Pulser Test</label>
+                <br>
+                <input type="radio" id="scantype" name="scantype" value="None" checked>
+                <label for="None">None</label>
+            </fieldset>
+        </div>
+        <div class="test">
+            <fieldset>
+                <legend>Test Type</legend>
+                <input type="radio" id="testype" name="testype" value="retest">
+                <label for="retest">Re-Test</label>
+                <input type="radio" id="testype" name="testype" value="rework">
+                <label for="rework">Re-Work</label>
+                <input type="radio" id="testype" name="testype" value="reworkretest">
+                <label for="reworkretest">Re-Work/Re-Test</label>
+                <input type="radio" id="testype" name="testype", value="None" checked>
+                <label for="None">None</label>
+            </fieldset>
+        </div>
+        <div class="container">
+            <div class="itemone">
+                <div class="serial">
+                    <label class="seriallabel" for="serialone">Serial #</label>
+                    <label class="serialonelabel">1</label>
+                    <input class="serialone" type="text" id="topleft" name="topleft">
+                    <input class="serialtwo" type="text" id="topright" name="topright">
+                    <label class="serialtwolabel">0</label>
+                    <label class="serialthreelabel">2</label>
+                    <input class="serialthree" type="text" id="bottomleft" name="bottomleft">
+                    <input class="serialfour" type="text" id="bottomright" name="bottomright">
+                    <label class="serialfourlabel">3</label>
+                </div>
+            </div>  
+        </div>
+
+        <button class="runtest" type="submit" id="process" value="Run">Run</button>
+        <button class="cleartest" type="reset" id="process" value="Clear">Clear</button>
+    </form>
+    <div id="running">
+        <h3>Test running, this may take awhile</h3>
+    </div>
+    <div id="content">
+        <h2 class="updatemes" id=results style="display:none">Status</h2>
+        <h3 class="updatemes" id="status0"></h3>
+        <h3 class="updatemes" id="status1"></h3>
+        <h3 class="updatemes" id="status2"></h3>
+        <h3 class="updatemes" id="status3"></h3>
+        <h3 class="updatemes" id="status4"></h3>
+        <h3 class="updatemes" id="status5"></h3>
+        <h3 class="updatemes" id="status6"></h3>
+        <h3 class="updatemes" id="status7"></h3>
+        <h3 class="updatemes" id="status8"></h3>
+        <h3 class="updatemes" id="status9"></h3>
+        <h3 class="updatemes" id="status10"></h3>
+        <h3 class="updatemes" id="status11"></h3>
+        <h3 class="updatemes" id="status12"></h3>
+        <h3 class="updatemes" id="status13"></h3>
+        <h3 class="updatemes" id="status14"></h3>
+        <h3 class="updatemes" id="status15"></h3>
+        <h3 class="updatemes" id="status16"></h3>
+        <h3 class="updatemes" id="status17"></h3>
+        <h3 class="updatemes" id="status18"></h3>
+        <h3 class="updatemes" id="status19"></h3>
+        <h3 class="updatemes" id="status20"></h3>
+    </div>
+
+</body>
+</html>
