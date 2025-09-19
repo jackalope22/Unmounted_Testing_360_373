@@ -1,3 +1,4 @@
+
 from flask import Flask, request, jsonify, render_template
 from icecream import ic
 from time import sleep
@@ -10,6 +11,23 @@ from logging.handlers import TimedRotatingFileHandler
 import re
 import requests
 from testing.DMatrix_Redis import getRedisClient
+
+"""
+NOTE: Lines containing "43" in this file:
+Line 17: logging.basicConfig(handlers=[TimedRotatingFileHandler(f"/media/evfile01/eV common/Production/logging/360_373_unmounted/kev360_373_unmounted_testing_debug_43.log", when="W6", backupCount=5, atTime=rotatetime)],
+Line 346: redis_client.delete("process_messages_43")
+Line 348: redis_client.rpush("process_messages_43", "Starting Testings")
+Line 363: redis_client.rpush("process_messages_43", f"Testing Serial number: {sensor}")
+Line 378: redis_client.rpush("process_messages_43", f"Running a {toTest} Test")
+Line 395: redis_client.rpush("process_messages_43", "Running a Retest")
+Line 409: redis_client.rpush("process_messages_43", "Running a Rework")
+Line 423: redis_client.rpush("process_messages_43", "Running a Rework Retest")
+Line 437: redis_client.rpush("process_messages_43", "Testing a new Part")
+Line 467: redis_client.rpush("process_messages_43", f"Test {toTest} completed")
+Line 470: redis_client.rpush("process_messages_43", f"Serial number: {result}")
+Line 471: redis_client.rpush("process_messages_43", "All Tests Completed successfully")
+Line 472: redis_client.rpush("process_messages_43", f"The new work order number is: {wonumber}")
+"""
 
 app = Flask(__name__)
 today = datetime.datetime.now().strftime("%Y-%m-%d")
@@ -56,10 +74,10 @@ def checkForVersion(current_serial, model, rework=False, retest=False, reworkret
         return False
     if reworkretest == True:
         #look for the highest number and add r and t
-        status = requests.get(f"http://172.27.3.217:8000/api/v1/dir/serial/kev{model}/{current_serial}")
+        status = requests.get(f"http://172.27.2.72:8000/api/v1/dir/serial/kev{model}/{current_serial}")
         if status.status_code == 500:
             return "500"
-        versions = requests.get(f"http://172.27.3.217:8000/api/v1/dir/serial/kev{model}/{current_serial}")
+        versions = requests.get(f"http://172.27.2.72:8000/api/v1/dir/serial/kev{model}/{current_serial}")
         versions = versions.text
         versions = versions.replace("[", "").replace("]", "").replace('"', "")
         versions = versions.split(",")
@@ -67,7 +85,7 @@ def checkForVersion(current_serial, model, rework=False, retest=False, reworkret
         if len(versions) > 1:
             for version in versions:
                 #look in folder for the exact part number.  if the part number exists then keep that version
-                infile = requests.get(f"http://172.27.3.217:8000/api/v1/file/serial/kev{model}/{version}")
+                infile = requests.get(f"http://172.27.2.72:8000/api/v1/file/serial/kev{model}/{version}")
                 infile = infile.text
                 infile = infile.replace("[", "").replace("]", "").replace('"', "").replace(" ", "")
                 infile = infile.replace("r", "R").replace("t", "T")
@@ -104,17 +122,17 @@ def checkForVersion(current_serial, model, rework=False, retest=False, reworkret
         else:
             return current_serial+"RT"+partnumber
     elif rework == True:
-        status = requests.get(f"http://172.27.3.217:8000/api/v1/dir/serial/kev{model}/{current_serial}")
+        status = requests.get(f"http://172.27.2.72:8000/api/v1/dir/serial/kev{model}/{current_serial}")
         if status.status_code == 500:
             return "500"
-        versions = requests.get(f"http://172.27.3.217:8000/api/v1/dir/serial/kev{model}/{current_serial}")
+        versions = requests.get(f"http://172.27.2.72:8000/api/v1/dir/serial/kev{model}/{current_serial}")
         versions = versions.text
         versions = versions.replace("[", "").replace("]", "").replace('"', "")
         versions = versions.split(",")
         logging.info(f"Found versions of workorder number: {versions}")
         if len(versions) > 1:
             for version in versions:
-                infile = requests.get(f"http://172.27.3.217:8000/api/v1/file/serial/kev{model}/{version}")
+                infile = requests.get(f"http://172.27.2.72:8000/api/v1/file/serial/kev{model}/{version}")
                 infile = infile.text
                 infile = infile.replace("[", "").replace("]", "").replace('"', "").replace(" ", "")
                 infile = infile.replace("r", "R").replace("t", "T")
@@ -157,17 +175,17 @@ def checkForVersion(current_serial, model, rework=False, retest=False, reworkret
 
         
     elif retest == True:
-        status = requests.get(f"http://172.27.3.217:8000/api/v1/dir/serial/kev{model}/{current_serial}")
+        status = requests.get(f"http://172.27.2.72:8000/api/v1/dir/serial/kev{model}/{current_serial}")
         if status.status_code == 500:
             return "500"
-        versions = requests.get(f"http://172.27.3.217:8000/api/v1/dir/serial/kev{model}/{current_serial}")
+        versions = requests.get(f"http://172.27.2.72:8000/api/v1/dir/serial/kev{model}/{current_serial}")
         versions = versions.text
         versions = versions.replace("[", "").replace("]", "").replace('"', "")
         versions = versions.split(",")
         logging.info(f"Found versions of workorder number: {versions}")
         if len(versions) > 1:
             for version in versions:
-                infile = requests.get(f"http://172.27.3.217:8000/api/v1/file/serial/kev{model}/{version}")
+                infile = requests.get(f"http://172.27.2.72:8000/api/v1/file/serial/kev{model}/{version}")
                 infile = infile.text
                 infile = infile.replace("[", "").replace("]", "").replace('"', "").replace(" ", "")
                 infile = infile.replace("r", "R").replace("t", "T")
@@ -209,17 +227,17 @@ def checkForVersion(current_serial, model, rework=False, retest=False, reworkret
             return current_serial+"T"+partnumber
 
     else:
-        status = requests.get(f"http://172.27.3.217:8000/api/v1/dir/serial/kev{model}/{current_serial}")
+        status = requests.get(f"http://172.27.2.72:8000/api/v1/dir/serial/kev{model}/{current_serial}")
         if status.status_code == 500:
             return "500"
-        versions = requests.get(f"http://172.27.3.217:8000/api/v1/dir/serial/kev{model}/{current_serial}")
+        versions = requests.get(f"http://172.27.2.72:8000/api/v1/dir/serial/kev{model}/{current_serial}")
         versions = versions.text
         versions = versions.replace("[", "").replace("]", "").replace('"', "")
         versions = versions.split(",")
         logging.info(f"Found versions of workorder number: {versions}")
         if len(versions) > 0:
             for version in versions:
-                infile = requests.get(f"http://172.27.3.217:8000/api/v1/file/serial/kev{model}/{version}")
+                infile = requests.get(f"http://172.27.2.72:8000/api/v1/file/serial/kev{model}/{version}")
                 infile = infile.text
                 infile = infile.replace("[", "").replace("]", "").replace('"', "").replace(" ", "")
                 infile = infile.replace("r", "R").replace("t", "T")
@@ -346,7 +364,7 @@ def submitForm():
             redis_client.delete("process_messages_43")
             redis_client.set("cancel", "False")
             redis_client.rpush("process_messages_43", "Starting Testings")
-            
+
             sensors = []
             sensors.append(form["topright"])
             sensors.append(form["topleft"])
@@ -468,8 +486,8 @@ def submitForm():
                 results = [i for i in sensors if i != ""]
                 for result in results:
                     redis_client.rpush("process_messages_43", f"Serial number: {result}")
-                redis_client.rpush( "process_messages_43", "All Tests Completed successfully")
-                redis_client.rpush( "process_messages_43", f"The new work order number is: {wonumber}")
+                redis_client.rpush("process_messages_43", "All Tests Completed successfully")
+                redis_client.rpush("process_messages_43", f"The new work order number is: {wonumber}")
                 sleep(1)
             else:
                 print(f"test {toTest} failed")

@@ -1,0 +1,137 @@
+<script type="text/javascript">
+    function check_status() 
+    {
+        $.ajax({
+            url: '{{ url_for("get_connected") }}',
+            type: 'POST',
+            data: {runtest: true},
+            success: function(results) {
+                console.log(results)
+                if (results.status === 1) {
+                    $("#test_connect").css("background-color","#14fa18")
+                }
+                else if (results.status === 0) {
+                    $("#test_connect").css("background-color", "#fa1414")
+                }
+            }
+        });
+    };
+
+    function set_pulser() 
+    {
+        $.ajax({
+            url: '{{ url_for("send_device_settings") }}',
+            type: 'POST',
+            data: {settings: "pulser"},
+            beforeSend: function() {
+                $("#spinning").show();
+            },
+            success: function(results) {
+                $("#spinning").hide();
+                console.log(results)
+                if (results.check_status === 1) {
+                    $("#pulser_settings").css("background-color","#12e802")
+                    $("#source_settings").css("background-color","#fa1414")
+                    $("#source_peak_one").css("background-color","#fa1414")
+                }
+                else if (results.check_status === 0) {
+                    $("#pulser_settings").css("background-color", "#fa1414")
+                }
+            }
+        });
+    };
+
+    function set_source() 
+    {
+        $.ajax({
+            url: '{{ url_for("send_device_settings") }}',
+            type: 'POST',
+            data: {settings: "source"},
+            beforeSend: function() {
+                $("#spinning").show();
+            },
+            success: function(results) {
+                $("#spinning").hide();
+                console.log(results)
+                if (results.check_status === 1) {
+                    $("#source_settings").css("background-color","#12e802")
+                    $("#pulser_settings").css("background-color","#fa1414")
+                    $("#source_peak_one").css("background-color","#fa1414")
+                }
+                else if (results.check_status === 0) {
+                    $("#source_settings").css("background-color", "#fa1414")
+                }
+            }
+        });
+    };
+
+    function set_source_peak_one()
+    {
+        $.ajax({
+            url: '{{ url_for("send_device_settings") }}',
+            type: 'POST',
+            data: {settings: "source1"},
+            beforeSend: function() {
+                $("#spinning").show();
+            },
+            success: function(results) {
+                $("#spinning").hide();
+                console.log(results)
+                if (results.check_status === 1){
+                    $("#source_peak_one").css("background-color", "#12e802")
+                    $("#source_settings").css("background-color", "#fa1414")
+                    $("#pulser_settings").css("background-color", "#fa1414")
+                }
+                else if (results.check_status === 0) {
+                    $("#source_peak_one").css("background-color", "#fa1414")
+                }
+            }
+        });
+    };
+
+    function reboot()
+    {
+        $.ajax({
+            url: '{{ url_for("reboot_device") }}',
+            type: 'POST',
+            data: {reboot: true},
+            beforeSend: function() {
+                $("#spinning").show();
+            },
+            success: function(results) {
+                $("#spinning").hide();
+                console.log(results)
+                if (results.reboot === 1) {
+                    $("#reboot").css("background-color", "#12e802")
+                }
+                else if (results.reboot === 0) {
+                    $("#reboot").css("background-color", "#fa1414")
+                }
+            }
+        });
+    };
+
+    function set_cancel()
+    {
+        $.ajax({
+            url: '{{ url_for("cancel_testing") }}',
+            type: 'POST',
+            data: {cancel: true},
+            success: function(results) {
+                console.log(results)
+                if (results.cancel === 1) {
+                    console.log("success")
+                }
+            }
+        });
+    };
+   
+</script>
+
+<button id="test_connect" onclick="check_status();"><img src="{{ url_for('static', filename='wifi.svg') }}" alt=""><span>connect DMatix</span></button>
+<button id="pulser_settings" onclick="set_pulser();"><img src="{{ url_for('static', filename='gear-svgrepo-com.svg') }}" alt=""><span>Pulser Settings</span></button>
+<button id="source_settings" onclick="set_source();"><img src="{{ url_for('static', filename='gear-svgrepo-com.svg') }}" alt=""><span>Source Settings</span></button>
+<button id="source_peak_one" onclick="set_source_peak_one()"><img src="{{ url_for('static', filename='gear-svgrepo-com.svg') }}" alt=""><span>Source Peak 1</span></button>
+<button id="reboot" onclick="reboot();"><img src="{{ url_for('static', filename='power-svgrepo-com.svg') }}" alt=""><span>ReBoot</span></button>
+<button id="cancel" onclick="set_cancel();"><img src="{{ url_for('static', filename='power-svgrepo-com.svg') }}" alt=""><span>Cancel</span></button>
+<div id="spinning" ></div>

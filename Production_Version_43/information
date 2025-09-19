@@ -1,0 +1,11 @@
+ev4187
+evczt
+#Swap4Be@t77sst
+
+networking
+ip: 172.27.3.43
+netmask: 255.255.255.0
+gateway: 172.27.3.2
+
+file storage mount fstab
+//172.27.2.224/eV /media/evfile01 cifs username=evczt,password=#Swap4Be@t77sst,vers=3.0,user,rw,dir_mode=0777,file_mode=0777

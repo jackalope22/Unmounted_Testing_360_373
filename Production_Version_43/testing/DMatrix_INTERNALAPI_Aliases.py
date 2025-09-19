@@ -175,7 +175,9 @@ try:
     path = os.path.dirname(os.path.abspath(__file__))
     # Put our folder at the beginning of Path so [in Windows] Qt DLLs are found in our folder FIRST:
     os.environ['PATH'] = path + os.pathsep + os.environ['PATH']
-    libfile = "/home/evczt/kev_360_373_test/lib/libDMatrixSharedLib_Internal.so"
+    #libfile = "/home/evczt/kev_360_373_test/lib/libDMatrixSharedLib_Internal.so"
+    #local
+    libfile = "/home/makers/Documents/Unmounted_Testing_360_373/Production_Version_43/lib/libDMatrixSharedLib_Internal.so"
     LIB = CDLL(libfile)
 except Exception as e:
     print('exception loading', libfile)
